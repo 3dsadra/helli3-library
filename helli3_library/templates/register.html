@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت‌نام | کتابخانه</title>
+    
+    <!-- فونت وزیرمتن از CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 10px;
+        }
+        
+        .register-header .icon {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .register-header h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .register-header p {
+            color: #666;
+            font-size: 14px;
+            font-weight: 300;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            transition: all 0.3s;
+            background: #fafafa;
+            color: #333;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: #aaa;
+            font-weight: 300;
+        }
+        
+        .btn-register {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-register:active {
+            transform: translateY(0);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #999;
+            font-size: 13px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+        }
+        
+        .login-link {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .login-link a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .back-home:hover {
+            color: #666;
+        }
+        
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .message.error {
+            background: #fee;
+            color: #c00;
+            border: 1px solid #fcc;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .message.success {
+            background: #efe;
+            color: #0a0;
+            border: 1px solid #cfc;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .message.info {
+            background: #eef;
+            color: #00c;
+            border: 1px solid #ccf;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .help-text::before {
+            content: '💡';
+        }
+        
+        .error-text {
+            font-size: 12px;
+            color: #c00;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .error-text::before {
+            content: '⚠️';
+        }
+        
+        .password-strength {
+            margin-top: 10px;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+            background: #e74c3c;
+        }
+        
+        /* انیمیشن‌ها */
+        .register-container {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* ریسپانسیو */
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 25px;
+            }
+            
+            .register-header h2 {
+                font-size: 24px;
+            }
+            
+            .register-header .icon {
+                font-size: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <span class="icon">📚</span>
+            <h2>کتابخانه</h2>
+            <p>ایجاد حساب کاربری جدید</p>
+        </div>
+        
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {% if message.tags == 'error' %}❌
+                    {% elif message.tags == 'success' %}✅
+                    {% elif message.tags == 'info' %}ℹ️
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username">نام کاربری</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input type="text" name="username" id="id_username" class="form-control" 
+                           placeholder="نام کاربری خود را انتخاب کنید" required autofocus>
+                </div>
+                {% if form.username.errors %}
+                    <div class="error-text">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password1">رمز عبور</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" name="password1" id="id_password1" class="form-control" 
+                           placeholder="رمز عبور خود را انتخاب کنید" required>
+                </div>
+                <div class="help-text">
+                    رمز عبور باید حداقل ۸ کاراکتر باشد و شامل حروف و اعداد باشد.
+                </div>
+                {% if form.password1.errors %}
+                    <div class="error-text">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password2">تکرار رمز عبور</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" name="password2" id="id_password2" class="form-control" 
+                           placeholder="رمز عبور را دوباره وارد کنید" required>
+                </div>
+                {% if form.password2.errors %}
+                    <div class="error-text">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn-register">ثبت‌نام در کتابخانه</button>
+        </form>
+        
+        <div class="divider">
+            <span>یا</span>
+        </div>
+        
+        <div class="login-link">
+            قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">وارد شوید</a>
+        </div>
+        
+        <a href="{% url 'home' %}" class="back-home">🏠 بازگشت به صفحه اصلی</a>
+    </div>
+    
+    <script>
+        // نمایش قدرت رمز عبور
+        const passwordInput = document.getElementById('id_password1');
+        const strengthBar = document.createElement('div');
+        strengthBar.className = 'password-strength';
+        strengthBar.innerHTML = '<div class="password-strength-bar" style="width: 0%"></div>';
+        
+        passwordInput.parentElement.appendChild(strengthBar);
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 25;
+            if (password.length >= 12) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            
+            const bar = strengthBar.querySelector('.password-strength-bar');
+            bar.style.width = strength + '%';
+            
+            if (strength < 25) {
+                bar.style.background = '#e74c3c';
+            } else if (strength < 50) {
+                bar.style.background = '#f39c12';
+            } else if (strength < 75) {
+                bar.style.background = '#3498db';
+            } else {
+                bar.style.background = '#27ae60';
+            }
+        });
+    </script>
+</body>
+</html>

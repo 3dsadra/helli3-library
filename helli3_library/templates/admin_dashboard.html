@@ -1,0 +1,1101 @@
+{% load books_tags %}
+{% load users_tags %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کتابخانه | سیستم مدیریت کتابخانه</title>
+    
+    <!-- فونت وزیرمتن از CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* نوار بالا */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .navbar-brand .icon {
+            font-size: 28px;
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 15px;
+            border-radius: 25px;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .user-role {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .role-admin {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+        }
+        
+        .role-member {
+            background: linear-gradient(135deg, #4ecdc4, #44bd9e);
+            color: white;
+            box-shadow: 0 2px 10px rgba(78, 205, 196, 0.3);
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .logout-btn:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+        }
+        
+        /* پیام‌ها */
+        .messages-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 30px;
+            width: 100%;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* محتوای اصلی */
+        .main-content {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 30px;
+            width: 100%;
+            flex: 1;
+        }
+        
+        .page-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .page-title .icon {
+            font-size: 40px;
+        }
+        
+        /* بخش‌ها */
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e8e8e8;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .section-title .icon {
+            font-size: 28px;
+        }
+        
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-subtitle .icon {
+            font-size: 20px;
+        }
+        
+        /* فرم‌ها */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            transition: all 0.3s;
+            background: #fafafa;
+            color: #333;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: #aaa;
+            font-weight: 300;
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* دکمه‌ها */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        /* نتیجه عملیات */
+        .operation-result {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 2px solid;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .result-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .result-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .result-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        
+        /* لیست کاربران */
+        .users-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+        
+        .user-item:hover {
+            background: #f0f0f0;
+            transform: translateX(-5px);
+        }
+        
+        .user-username {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .user-role-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .role-admin-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+        }
+        
+        .role-member-badge {
+            background: linear-gradient(135deg, #4ecdc4, #44bd9e);
+            color: white;
+            box-shadow: 0 2px 10px rgba(78, 205, 196, 0.3);
+        }
+        
+        /* کتاب‌ها */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .book-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .book-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .book-id {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .book-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .book-author {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .book-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-borrowed {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .status-reserved {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .book-extra {
+            font-size: 13px;
+            color: #777;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e8e8e8;
+        }
+        
+        /* فوتر */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: auto;
+            width: 100%;
+        }
+        
+        .footer p {
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        /* جداکننده */
+        .divider {
+            border: none;
+            border-top: 1px solid #e9ecef;
+            margin: 25px 0;
+        }
+        
+        /* واکنش‌گرایی */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .navbar-user {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+        }
+        
+        /* اسکرول‌بار */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46a1);
+        }
+    </style>
+</head>
+<body>
+    <!-- نوار بالا -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="icon">📚</span>
+            <span>کتابخانه</span>
+        </div>
+        
+        <div class="navbar-user">
+            {% if user.is_authenticated %}
+                <div class="user-info">
+                    <span>👤</span>
+                    <span class="user-name">{{ user.username }}</span>
+                    {% if user.is_admin %}
+                        <span class="user-role role-admin">👑 مدیر</span>
+                    {% else %}
+                        <span class="user-role role-member">📖 عضو</span>
+                    {% endif %}
+                </div>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">🚪 خروج</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary" style="padding: 8px 20px;">🔑 ورود</a>
+                <a href="{% url 'register' %}" class="btn btn-success" style="padding: 8px 20px;">📝 ثبت‌نام</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- پیام‌های سیستم -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {% if message.tags == 'success' %}✅
+                    {% elif message.tags == 'error' %}❌
+                    {% elif message.tags == 'info' %}ℹ️
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- محتوای اصلی -->
+    <div class="main-content">
+        <h1 class="page-title">
+            <span class="icon">🏛️</span>
+            سیستم مدیریت کتابخانه
+        </h1>
+        
+        {% if user.is_authenticated %}
+            <!-- ==================== مدیریت کاربران ==================== -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="icon">👥</span>
+                    مدیریت کاربران
+                </h2>
+                
+                <!-- ایجاد کاربر -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">➕</span>
+                        ایجاد کاربر جدید
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="create_user">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username">نام کاربری</label>
+                                <input type="text" id="username" name="username" class="form-control" placeholder="مثال: ali" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">رمز عبور</label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="رمز عبور" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="is_admin">نقش کاربر</label>
+                                <select id="is_admin" name="is_admin" class="form-control">
+                                    <option value="false">عضو</option>
+                                    <option value="true">مدیر</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-primary">ایجاد کاربر</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'create_user' and request.POST.username %}
+                        {% create_user request.POST.username request.POST.password request.POST.is_admin as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'Success' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- حذف کاربر -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">🗑️</span>
+                        حذف کاربر
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_user">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="del_username">نام کاربری</label>
+                                <input type="text" id="del_username" name="username" class="form-control" placeholder="نام کاربری برای حذف" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-danger">حذف کاربر</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'delete_user' and request.POST.username %}
+                        {% delete_user request.POST.username as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'Success' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- اطلاعات کاربر -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">ℹ️</span>
+                        اطلاعات کاربر
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="get_user">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="get_username">نام کاربری</label>
+                                <input type="text" id="get_username" name="username" class="form-control" placeholder="نام کاربری برای مشاهده" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-info">مشاهده اطلاعات</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'get_user' and request.POST.username %}
+                        {% get_user request.POST.username as result %}
+                        {% if result %}
+                            <div class="operation-result result-info">
+                                {{ result|safe }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- مدیریت نقش‌ها -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">🎭</span>
+                        مدیریت نقش‌ها
+                    </h4>
+                    
+                    <form method="post" style="margin-bottom: 15px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="make_admin">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="admin_username">نام کاربری</label>
+                                <input type="text" id="admin_username" name="username" class="form-control" placeholder="نام کاربری برای ارتقا به مدیر" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-warning">ارتقا به مدیر</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <form method="post" style="margin-bottom: 15px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove_admin">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="remove_admin_username">نام کاربری</label>
+                                <input type="text" id="remove_admin_username" name="username" class="form-control" placeholder="نام کاربری برای حذف دسترسی مدیر" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-warning">حذف دسترسی مدیر</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'make_admin' and request.POST.username %}
+                        {% make_admin request.POST.username as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'Success' in result %}result-success{% else %}result-info{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if request.POST.action == 'remove_admin' and request.POST.username %}
+                        {% remove_admin request.POST.username as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'Success' in result %}result-success{% else %}result-info{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- لیست کاربران -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">📋</span>
+                        لیست همه کاربران
+                    </h4>
+                    
+                    <button onclick="window.location.reload()" class="btn btn-primary" style="margin-bottom: 15px;">
+                        🔄 به‌روزرسانی لیست
+                    </button>
+                    
+                    {% list_users as user_list %}
+                    <div class="users-list">
+                        {{ user_list|safe }}
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- ==================== مدیریت کتاب‌ها ==================== -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="icon">📚</span>
+                    مدیریت کتاب‌ها
+                </h2>
+                
+                <!-- افزودن کتاب -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">➕</span>
+                        افزودن کتاب جدید
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_book">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="book_name">نام کتاب</label>
+                                <input type="text" id="book_name" name="name" class="form-control" placeholder="مثال: جنگ و صلح" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="book_author">نویسنده</label>
+                                <input type="text" id="book_author" name="author" class="form-control" placeholder="مثال: تولستوی" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="book_extra">توضیحات اضافی</label>
+                                <textarea id="book_extra" name="extra" class="form-control" placeholder="توضیحات اضافه در صورت وجود"></textarea>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-success" style="width: 100%;">افزودن کتاب</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'add_book' and request.POST.name %}
+                        {% add_book request.POST.name request.POST.author request.POST.extra as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'added' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- حذف کتاب -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">🗑️</span>
+                        حذف کتاب
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove_book">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="remove_book_id">شناسه کتاب</label>
+                                <input type="number" id="remove_book_id" name="book_id" class="form-control" placeholder="شناسه کتاب" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-danger">حذف کتاب</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'remove_book' and request.POST.book_id %}
+                        {% remove_book request.POST.book_id as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'removed' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- امانت دادن کتاب -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">📤</span>
+                        امانت دادن کتاب
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="borrow_book">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="borrow_book_id">شناسه کتاب</label>
+                                <input type="number" id="borrow_book_id" name="book_id" class="form-control" placeholder="شناسه کتاب" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="borrow_username">نام کاربری</label>
+                                <input type="text" id="borrow_username" name="username" class="form-control" placeholder="نام کاربری" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-primary">امانت دادن</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'borrow_book' and request.POST.book_id %}
+                        {% borrow_book request.POST.book_id request.POST.username as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'borrowed' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- رزرو کتاب -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">🔒</span>
+                        رزرو کتاب
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reserve_book">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reserve_book_id">شناسه کتاب</label>
+                                <input type="number" id="reserve_book_id" name="book_id" class="form-control" placeholder="شناسه کتاب" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reserve_username">نام کاربری</label>
+                                <input type="text" id="reserve_username" name="username" class="form-control" placeholder="نام کاربری" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-warning">رزرو کتاب</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'reserve_book' and request.POST.book_id %}
+                        {% reserve_book request.POST.book_id request.POST.username as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'reserved' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- مشاهده کتاب -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">🔍</span>
+                        مشاهده جزئیات کتاب
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="view_book">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="view_book_id">شناسه کتاب</label>
+                                <input type="number" id="view_book_id" name="book_id" class="form-control" placeholder="شناسه کتاب" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-info">مشاهده کتاب</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'view_book' and request.POST.book_id %}
+                        {% view_book request.POST.book_id as result %}
+                        {% if result %}
+                            <div class="operation-result result-info">
+                                {{ result|safe }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <hr class="divider">
+                
+                <!-- تحویل گرفتن کتاب -->
+                <div class="section" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <h4 class="section-subtitle">
+                        <span class="icon">📥</span>
+                        تحویل گرفتن کتاب
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="receive_book">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="receive_book_id">شناسه کتاب</label>
+                                <input type="number" id="receive_book_id" name="book_id" class="form-control" placeholder="شناسه کتاب" required>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-success">تحویل کتاب</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    {% if request.POST.action == 'receive_book' and request.POST.book_id %}
+                        {% receive_book request.POST.book_id as result %}
+                        {% if result %}
+                            <div class="operation-result {% if 'received' in result %}result-success{% else %}result-error{% endif %}">
+                                {{ result }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- ==================== لیست همه کتاب‌ها ==================== -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="icon">📖</span>
+                    همه کتاب‌های موجود در کتابخانه
+                </h2>
+                
+                {% if books %}
+                    <div class="books-grid">
+                        {% for book in books %}
+                            <div class="book-card">
+                                <div class="book-id">شناسه: {{ book.id }}</div>
+                                <div class="book-name">{{ book.name }}</div>
+                                <div class="book-author">✍️ {{ book.author }}</div>
+                                <div class="book-status status-{{ book.status }}">
+                                    {% if book.status == 'available' %}✅ موجود
+                                    {% elif book.status == 'borrowed' %}📤 امانت داده شده
+                                    {% elif book.status == 'reserved' %}🔒 رزرو شده
+                                    {% endif %}
+                                </div>
+                                {% if book.extra %}
+                                    <div class="book-extra">📝 {{ book.extra }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        هیچ کتابی در کتابخانه موجود نیست.
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- اگر کاربر وارد نشده باشد -->
+            <div class="section" style="text-align: center; padding: 60px;">
+                <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 28px;">
+                    🔒 برای دسترسی به سیستم مدیریت کتابخانه، ابتدا وارد شوید
+                </h2>
+                <p style="color: #666; margin-bottom: 30px; font-size: 16px;">
+                    برای استفاده از تمام امکانات سیستم، لطفاً وارد حساب کاربری خود شوید یا ثبت‌نام کنید
+                </p>
+                <div style="margin: 20px 0;">
+                    <a href="{% url 'login' %}" class="btn btn-primary" style="margin: 10px; padding: 15px 40px; font-size: 16px;">
+                        🔑 ورود به سیستم
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-success" style="margin: 10px; padding: 15px 40px; font-size: 16px;">
+                        📝 ثبت‌نام
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- فوتر -->
+    <footer class="footer">
+        <p>📚 سیستم مدیریت کتابخانه | © 2024 - تمامی حقوق محفوظ است</p>
+    </footer>
+</body>
+</html>
